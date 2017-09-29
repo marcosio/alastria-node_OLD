@@ -2,13 +2,20 @@
 set -u
 set -e
 
-MESSAGE="Usage: init CURRENT_HOST_IP"
+MESSAGE="Usage: init CURRENT_HOST_IP | auto"
 if ( [ $# -ne 1 ] ); then
     echo "$MESSAGE"
     exit
 fi
 
 CURRENT_HOST_IP="$1"
+
+if ( [ "auto" == "$1" ]); then 
+    echo "Autodiscovering public host IP ..."
+    CURRENT_HOST_IP="$(dig +short myip.opendns.com @resolver1.opendns.com 2>/dev/null || curl -s --retry 2 icanhazip.com)"
+    echo "Public host IP found: $CURRENT_HOST_IP"
+fi
+
 PWD="$(pwd)"
 CONSTELLATION_NODES=$(cat ../data/constellation-nodes.json)
 STATIC_NODES=$(cat ../data/static-nodes.json)
